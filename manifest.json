@@ -1,0 +1,48 @@
+{
+    "manifest_version": 3,
+    "name": "Experiment Runner",
+    "description": "Run experiments locally!",
+    "version": "1.0",
+    "action": {
+        "default_icon": {
+            "16": "logo/logo-d-16.png",
+            "32": "logo/logo-d-32.png",
+            "64": "logo/logo-d-64.png",
+            "128": "logo/logo-d-128.png"
+        }
+    },
+    "icons": {
+        "128": "logo/logo-d-128.png",
+        "64": "logo/logo-d-64.png",
+        "32": "logo/logo-d-32.png",
+        "16": "logo/logo-d-16.png"
+    },
+    "content_scripts": [
+        {
+            "js": [
+                "index.js"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "background": {
+        "service_worker": "scripts/background.js"
+    },
+    "permissions": [
+        "activeTab",
+        "storage",
+        "scripting"
+    ],
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+    ],
+    "commands": {
+        "switch-http-or-https": {
+            "suggested_key": "Alt+Shift+H",
+            "description": "Switch between HTTP and HTTPS"
+        }
+    }
+}
