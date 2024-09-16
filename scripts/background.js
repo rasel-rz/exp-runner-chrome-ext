@@ -9,15 +9,24 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status !== 'complete') return;
-    setHttpOrHttpsBadge().then(() => {
-        setLogo(activeStatus[tabId], tabId);
-        activeStatus[tabId] && executeScript(tabId);
-    });
+    activate(tabId);
+});
+
+chrome.webNavigation.onCommitted.addListener(({ tabId, frameType }) => {
+    if (frameType !== 'outermost_frame') return;
+    activate(tabId);
 });
 
 chrome.commands.onCommand.addListener((command) => {
     if (command === 'switch-http-or-https') return toggleHttpOrHttps();
 });
+
+function activate(tabId) {
+    setHttpOrHttpsBadge().then(() => {
+        setLogo(activeStatus[tabId], tabId);
+        activeStatus[tabId] && executeScript(tabId);
+    });
+}
 
 function toggleHttpOrHttps() {
     chrome.storage.local.get(HTTPS_STORAGE_KEY, (data) => {
@@ -58,9 +67,11 @@ function executeScript(tabId) {
             target: { tabId: tabId },
             func: (isHttps) => {
                 !(() => {
+                    if (window.experiment_runner_loaded) return;
                     const script = document.createElement("script");
                     script.src = (isHttps ? 'https' : 'http') + "://localhost:3001/experiment-runner.js";
                     document.head.append(script);
+                    window.experiment_runner_loaded = true;
                 })();
             },
             args: [isHttps]
