@@ -44,6 +44,10 @@
         "switch-http-or-https": {
             "suggested_key": "Alt+Shift+H",
             "description": "Switch between HTTP and HTTPS"
+        },
+        "no-scoket-mode": {
+            "suggested_key": "Alt+Shift+G",
+            "description": "Toggle No Socket mode"
         }
     }
 }
