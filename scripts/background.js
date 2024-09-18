@@ -117,3 +117,8 @@ function executeScript(tabId) {
             });
     });
 }
+
+// Keep the service worker alive
+setInterval(() => {
+    chrome.storage.local.get();
+}, 20 * 1000);
