@@ -95,26 +95,34 @@ function executeScript(tabId) {
                 },
                 args: [isHttps]
             });
-
-        isNoSocketMode &&
+        if (!isNoSocketMode) return true;
+        const protocol = isHttps ? 'https' : 'http';
+        const url = protocol + "://localhost:3001/variation.";
+        Promise.all([getRawContent(url + 'js'), getRawContent(url + 'css')]).then(([js, css]) => {
             chrome.scripting.executeScript({
                 target: { tabId: tabId },
-                func: (isHttps) => {
+                func: (js, css) => {
                     if (window.experiment_runner_loaded) return;
                     window.experiment_runner_loaded = true;
-                    const protocol = isHttps ? 'https' : 'http';
                     const script = document.createElement("script");
-                    script.src = protocol + "://localhost:3001/variation.js";
-                    const style = document.createElement("link");
-                    style.rel = "stylesheet";
-                    style.href = protocol + "://localhost:3001/variation.css";
+                    script.textContent = js;
+                    const style = document.createElement("style");
+                    style.textContent = css;
                     document.head.append(script, style);
-                    script.onload = () => console.log("Experiment runner loaded without hot reload");
-                    return;
-
                 },
-                args: [isHttps]
+                args: [js, css]
             });
+        });
+    });
+}
+
+function getRawContent(url) {
+    return new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onload = () => resolve(xhr.responseText);
+        xhr.onerror = () => resolve('');
+        xhr.send();
     });
 }
 
